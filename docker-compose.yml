@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  web:
+    image: django-test  # Имя вашего образа
+    build: .            # Собирать образ из текущего Dockerfile
+    ports:
+      - "8000:8000"     # Проброс портов
+    volumes:
+      - .:/app          # Монтирование кода (для разработки)
+    environment:
+      - DEBUG=1         # Пример переменной окружения
+    command: python manage.py runserver 0.0.0.0:8000
