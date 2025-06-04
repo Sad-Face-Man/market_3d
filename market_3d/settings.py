@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 
+# import users.models # избавление от циклического импорта
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -37,7 +39,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # ----------------- apps -----------------
     'products.apps.ProductsConfig',
+    'users.apps.UsersConfig',
+
+    # --------------- frameworks ---------------
+    'rest_framework',
+
 ]
 
 MIDDLEWARE = [
@@ -73,13 +82,39 @@ WSGI_APPLICATION = 'market_3d.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+# ------------- localhost ------------
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'market_3d',
+        'USER': 'market_sql_user',
+        'PASSWORD': 'Password0000',
+        'HOST': 'db',                      # Имя сервиса в Docker
+        'PORT': '5432',                    # Порт PostgreSQL
     }
 }
 
+#  -------------- docker --------------
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.getenv('POSTGRES_DB', 'market_3d'),
+#         'USER': os.getenv('POSTGRES_USER', 'market_sql_user'),
+#         'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'Password0000'),
+#         'HOST': os.getenv('POSTGRES_HOST', 'db'),  # 'db' — имя сервиса в Docker
+#         'PORT': os.getenv('POSTGRES_PORT', '5432'),
+#     }
+# }
+
+
+# User model
+AUTH_USER_MODEL = "users.User"
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

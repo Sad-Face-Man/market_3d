@@ -1,13 +1,36 @@
-version: '3.8'
-
 services:
-  web:
-    image: django-test  # Имя вашего образа
-    build: .            # Собирать образ из текущего Dockerfile
-    ports:
-      - "8000:8000"     # Проброс портов
-    volumes:
-      - .:/app          # Монтирование кода (для разработки)
+  db:
+    image: postgres:17
     environment:
-      - DEBUG=1         # Пример переменной окружения
-    command: python manage.py runserver 0.0.0.0:8000
+      POSTGRES_DB: market_3d
+      POSTGRES_USER: market_sql_user
+      POSTGRES_PASSWORD: Password0000
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+    ports:
+      - "5433:5432"  # Изменяем порт на 5433
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U market_sql_user -d market_3d"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build: .
+    command: >
+      sh -c "while ! nc -z db 5432; do sleep 2; done &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgres://market_sql_user:Password0000@db:5432/market_3d
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+
+volumes:
+  postgres_data:

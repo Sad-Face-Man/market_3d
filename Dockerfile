@@ -2,13 +2,18 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
-# Сначала копируем только requirements.txt для кэширования
-COPY ./requirements.txt ./requirements.txt
+# Установка зависимостей
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        netcat-openbsd \
+        libpq-dev \
+        gcc \
+        python3-dev && \
+    rm -rf /var/lib/apt/lists/*
 
-# Устанавливаем зависимости
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Затем копируем ВСЕ содержимое проекта
 COPY . .
 
 EXPOSE 8000
