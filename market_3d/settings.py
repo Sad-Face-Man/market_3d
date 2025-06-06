@@ -9,8 +9,12 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import os
 from pathlib import Path
+from django.core.files.storage import FileSystemStorage
+
+from dotenv import load_dotenv
+load_dotenv()  # загружает переменные из .env
 
 # import users.models # избавление от циклического импорта
 
@@ -22,12 +26,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-x0(7-=%j)_0@t!64^+^qzrzjv(jk&elr7o!fj1bsu79ia46$24'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', '0') == '1'
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',')
 
 
 # Application definition
@@ -43,6 +47,7 @@ INSTALLED_APPS = [
     # ----------------- apps -----------------
     'products.apps.ProductsConfig',
     'users.apps.UsersConfig',
+    'drf_yasg', # Swagger
 
     # --------------- frameworks ---------------
     'rest_framework',
@@ -89,28 +94,28 @@ WSGI_APPLICATION = 'market_3d.wsgi.application'
 #     }
 # }
 # ------------- localhost ------------
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'market_3d',
-        'USER': 'market_sql_user',
-        'PASSWORD': 'Password0000',
-        'HOST': 'db',                      # Имя сервиса в Docker
-        'PORT': '5432',                    # Порт PostgreSQL
-    }
-}
-
-#  -------------- docker --------------
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.getenv('POSTGRES_DB', 'market_3d'),
-#         'USER': os.getenv('POSTGRES_USER', 'market_sql_user'),
-#         'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'Password0000'),
-#         'HOST': os.getenv('POSTGRES_HOST', 'db'),  # 'db' — имя сервиса в Docker
-#         'PORT': os.getenv('POSTGRES_PORT', '5432'),
+#         'NAME': 'market_3d',
+#         'USER': 'market_sql_user',
+#         'PASSWORD': 'Password0000',
+#         'HOST': 'db',                      # Имя сервиса в Docker
+#         'PORT': '5432',                    # Порт PostgreSQL
 #     }
 # }
+
+#  -------------- docker --------------
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB', 'market_3d'),
+        'USER': os.getenv('POSTGRES_USER', 'market_sql_user'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'Password0000'),
+        'HOST': os.getenv('POSTGRES_HOST', 'db'),  # 'db' — имя сервиса в Docker
+        'PORT': os.getenv('POSTGRES_PORT', '5432'),
+    }
+}
 
 
 # User model
@@ -150,9 +155,29 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
+#STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Для collectstatic
+STATIC_ROOT = '/vol/static'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),  # Ваши файлы из static/dist/
+]
+
+# Для production:
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+
+
+# ------------ media ---------------
+MEDIA_URL = '/media/'
+MEDIA_ROOT = '/vol/media'
+
+# ------------ preveiw ------------
+PREVIEW_ROOT = '/srv/ftp/market_3d_storage/previews'
+preview_storage = FileSystemStorage(location=PREVIEW_ROOT)
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
