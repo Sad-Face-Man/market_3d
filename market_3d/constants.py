@@ -1,18 +1,15 @@
 class FileTypes:
     """Доступные расширения файлов 3D моделей"""
     OBJ = 'OBJ'
-    STL = 'STL'
+    GLB = 'GLB'
     FBX = 'FBX'
     BLEND = 'BLEND'
-    GLTF = 'GLTF'
 
     CHOICES = [
         (OBJ, 'Wavefront OBJ'),
-        (STL, 'Stereolithography'),
+        (GLB, 'GL Transmission Format Binary file'),
         (FBX, 'Autodesk FBX'),
         (BLEND, 'Blender'),
-        (GLTF, 'GL Transmission Format'),
     ]
 
-    EXTENSIONS = [OBJ.lower(), STL.lower(), FBX.lower(), BLEND.lower(),
-                  GLTF.lower()]
+    EXTENSIONS = [OBJ.lower(), GLB.lower(), FBX.lower(), BLEND.lower()]

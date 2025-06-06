@@ -15,9 +15,43 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 
+# --------- Для Swagger ----------
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
+# -------- Модели ---------
+from products.views import Model3DViewSet, TagViewSet
+
+
+#  ------------ Swagger setting ------------
+schema_view = get_schema_view(
+    openapi.Info(
+        title="3D Models Market API",
+        default_version='v1',
+        description="Документация к API маркетплейса 3D-моделей",
+        terms_of_service="https://www.3dmodelsmarket.ru/terms/",
+        contact=openapi.Contact(email="admin@3dmodelsmarket.ru"),
+        license=openapi.License(name="BSD License"),
+    ),
+    public=True,
+    permission_classes=[permissions.AllowAny],
+)
+
+
+router = DefaultRouter()
+router.register(r'models', Model3DViewSet)
+router.register(r'tags', TagViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/', include(router.urls)),
+
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0),
+         name='schema-swagger-ui'),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0),
+         name='schema-redoc'),
 ]
