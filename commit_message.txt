@@ -1,0 +1,7 @@
+.gitignore changed;
+Admin seted up;
+API began;
+products models in work;
+Swagger added;
+Migrations performed;
+Changed Docker files;
