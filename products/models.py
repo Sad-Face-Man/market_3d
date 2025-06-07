@@ -6,7 +6,8 @@ from django.core.validators import FileExtensionValidator
 from market_3d.constants import FileTypes
 
 # Импорт переменных
-from market_3d.settings import preview_storage
+from market_3d.settings import preview_storage,\
+                                model3d_storage
 
 
 class ModelTag(models.Model):
@@ -54,6 +55,7 @@ class Model3D(models.Model):
         verbose_name="Размер файла (в байтах)")
     file = models.FileField(
         upload_to='3d_models/%Y/%m/%d/',
+        storage=model3d_storage,
         validators=[FileExtensionValidator(allowed_extensions=FileTypes.EXTENSIONS)],
         verbose_name="Файл 3D-модели"
     )
@@ -62,7 +64,7 @@ class Model3D(models.Model):
     animated = models.BooleanField(default=False,
                                    verbose_name="Анимированная модель.")
 
-    # ----------- Дополнительные поля -----------
+    # ----------- Публикация - покупка - скачивание -----------
     price = models.PositiveIntegerField(
         default=0,
         null=False,
@@ -76,6 +78,15 @@ class Model3D(models.Model):
     is_published = models.BooleanField(default=True,
                                        verbose_name="Опубликовано")
 
+
+    # ----------- NFT -----------
+    nft_token = models.CharField(
+        max_length=255,
+        unique=True,
+        blank=True,
+        null=True,
+        verbose_name="NFT-токен (опционально)"
+    )
 
     # -------------- Связи --------------
     author = models.ForeignKey(settings.AUTH_USER_MODEL,

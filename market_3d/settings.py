@@ -157,7 +157,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-#STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Для collectstatic
+# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Для collectstatic
 STATIC_ROOT = '/vol/static'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),  # Ваши файлы из static/dist/
@@ -174,6 +174,18 @@ MEDIA_ROOT = '/vol/media'
 # ------------ preveiw ------------
 PREVIEW_ROOT = '/srv/ftp/market_3d_storage/previews'
 preview_storage = FileSystemStorage(location=PREVIEW_ROOT)
+
+# ------------ 3d models ------------
+# Папка для оригинальных и конвертированных моделей
+MODEL3D_ROOT = '/srv/ftp/market_3d_storage/models'
+MODEL_CONVERTED_ROOT = '/srv/ftp/market_3d_storage/models_glb'
+model3d_storage = FileSystemStorage(location=MODEL3D_ROOT)
+converted_storage = FileSystemStorage(location=MODEL_CONVERTED_ROOT)
+
+# Django Rest Framework
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+}
 
 
 # Default primary key field type

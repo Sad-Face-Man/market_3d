@@ -6,3 +6,4 @@ psycopg2-binary==2.9.10
 gunicorn==22.0.0  # Для production
 whitenoise==6.6.0  # Для статики
 python-dotenv==1.0.1  # Для переменных окружения
+django-filter==25.1

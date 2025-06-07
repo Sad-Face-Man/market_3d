@@ -18,7 +18,8 @@ class ModelImageInline(admin.TabularInline):
 
 @admin.register(Model3D)
 class Model3DAdmin(admin.ModelAdmin):
-    list_display = ('title', 'author', 'file_type', 'animated', 'created_at', 'is_published')
+    list_display = ('title', 'author', 'file_type', 'animated', 'created_at',\
+                    'is_published', 'nft_token')
     list_filter = ('file_type', 'is_published', 'created_at', 'animated')
     search_fields = ('title', 'description')
     inlines = [ModelImageInline]

@@ -1,0 +1,92 @@
+# === Python ===
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# === Django ===
+*.log
+*.pot
+*.pyc
+db.sqlite3
+media/
+staticfiles/
+local_settings.py
+
+# === Migrations (включаем, не игнорируем!) ===
+!*/migrations/
+!*/migrations/*.py
+*/migrations/__pycache__/
+
+# === Virtualenv ===
+venv/
+env/
+ENV/
+.venv/
+.ENV/
+pyvenv.cfg
+
+# === IDE / Editor ===
+.idea/
+.vscode/
+*.swp
+*.swo
+*.swn
+
+# === System ===
+.DS_Store
+Thumbs.db
+
+# === Docker / Compose ===
+*.pid
+.env
+.env.*
+docker-compose.override.yml
+__docker_volume_cache__/
+build/
+*.bak
+
+# === Nginx ===
+nginx.conf
+*.crt
+*.key
+
+# === Swagger / Redoc generated files (если генерируются) ===
+*.swagger.json
+*.swagger.yaml
+*.redoc.html
+
+# === Coverage / Testing ===
+htmlcov/
+.coverage
+.coverage.*
+.tox/
+.nox/
+.cache/
+.pytest_cache/
+
+# === Logs / Dumps ===
+*.log
+*.out
+*.pid
+*.dump
+
+# === Mac / Windows metadata ===
+ehthumbs.db
+Icon?
+desktop.ini
+
+# === Backup files ===
+*.baks
+*.old
+*.orig
+*.rej
+
+# === Git ===
+*.orig
+*.rej
+
+
+# === Commit message ===
+commit_message.*
