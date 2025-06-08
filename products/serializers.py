@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ModelTag, Model3D
+from .models import ModelTag, Model3D, ModelImage
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -10,7 +10,9 @@ class TagSerializer(serializers.ModelSerializer):
 
 class Model3DSerializer(serializers.ModelSerializer):
     author_username = serializers.CharField(source='author.username', read_only=True)
-    tags = TagSerializer(many=True, read_only=True)
+    tags = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=ModelTag.objects.all()
+    )
 
     class Meta:
         model = Model3D
@@ -40,3 +42,9 @@ class Model3DSerializer(serializers.ModelSerializer):
                 ).exists():
             raise serializers.ValidationError("Этот NFT-токен уже используется.")
         return value
+
+
+class ModelImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ModelImage
+        fields = ['id', 'model', 'image']

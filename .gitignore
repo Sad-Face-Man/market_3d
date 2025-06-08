@@ -13,6 +13,7 @@ db.sqlite3
 media/
 staticfiles/
 local_settings.py
+logs/
 
 # === Migrations (включаем, не игнорируем!) ===
 !*/migrations/

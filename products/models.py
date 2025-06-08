@@ -1,10 +1,13 @@
 from django.db import models
+from uuid import uuid4
 
 from django.conf import settings  # Импортируем settings для AUTH_USER_MODEL
 from django.utils import timezone
 from django.core.validators import FileExtensionValidator
 from market_3d.constants import FileTypes
 
+from utils.paths import get_model_directory, get_preview_image_path, \
+                        get_converted_model_path
 # Импорт переменных
 from market_3d.settings import preview_storage,\
                                 model3d_storage
@@ -39,8 +42,12 @@ class ModelLicense(models.Model):
 
 
 class Model3D(models.Model):
+    # Используется для прегенерации уникального значения
+    # в т.ч. для создания путей сохранения (id генерируется уже после)
+    uuid = models.UUIDField(default=uuid4, editable=False, unique=True)
+
     title = models.CharField(max_length=255)
-    description = models.TextField(max_length=3000)
+    description = models.TextField(max_length=3000, blank=True, null=True)
 
     # ----------- Временные метки -----------
     created_at = models.DateTimeField(default=timezone.now)
@@ -54,10 +61,17 @@ class Model3D(models.Model):
     file_size = models.PositiveIntegerField(
         verbose_name="Размер файла (в байтах)")
     file = models.FileField(
-        upload_to='3d_models/%Y/%m/%d/',
+        upload_to=get_model_directory,
         storage=model3d_storage,
         validators=[FileExtensionValidator(allowed_extensions=FileTypes.EXTENSIONS)],
         verbose_name="Файл 3D-модели"
+    )
+    converted_file = models.FileField(
+        upload_to=get_converted_model_path,
+        storage=model3d_storage,
+        blank=True,
+        null=True,
+        verbose_name="Конвертированный файл (.glb)"
     )
 
     # ----------- Характеристики модели -----------
@@ -78,11 +92,9 @@ class Model3D(models.Model):
     is_published = models.BooleanField(default=True,
                                        verbose_name="Опубликовано")
 
-
     # ----------- NFT -----------
     nft_token = models.CharField(
         max_length=255,
-        unique=True,
         blank=True,
         null=True,
         verbose_name="NFT-токен (опционально)"
@@ -105,7 +117,6 @@ class Model3D(models.Model):
                                 related_name="models",
                                 verbose_name="Тип лицензии")
 
-
     def __str__(self):
         return self.title
 
@@ -118,6 +129,11 @@ class Model3D(models.Model):
             models.Index(fields=["author"], name="idx_author"),
             models.Index(fields=["title"], name="idx_title"),
         ]
+        constraints = [
+            models.UniqueConstraint(fields=['nft_token'],
+                                    name='unique_nft_token',
+                                    condition=~models.Q(nft_token=None))
+        ]
 
 
 class ModelImage(models.Model):
@@ -127,7 +143,7 @@ class ModelImage(models.Model):
                               verbose_name='3D-модель')
     image = models.ImageField(
         storage=preview_storage,    # from settings
-        upload_to='model_images/%Y/%m/%d/',
+        upload_to=get_preview_image_path,
         verbose_name='Изображение превью'
     )
 
