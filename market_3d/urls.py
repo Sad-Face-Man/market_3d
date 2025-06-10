@@ -24,7 +24,7 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
 # -------- Модели ---------
-from products.views import Model3DViewSet, TagViewSet
+from products.views import Model3DViewSet, TagViewSet, ModelImageViewSet
 
 
 #  ------------ Swagger setting ------------
@@ -45,6 +45,7 @@ schema_view = get_schema_view(
 router = DefaultRouter()
 router.register(r'models', Model3DViewSet)
 router.register(r'tags', TagViewSet)
+router.register(r'model-images', ModelImageViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),

@@ -17,6 +17,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    ports:
+      - "5433:5432"
 
   web:
     build: .
@@ -34,6 +36,7 @@ services:
     volumes:
       - ./staticfiles:/vol/static
       - media_volume:/vol/media
+      - ./logs:/app/logs
 
   nginx:
     image: nginx:latest

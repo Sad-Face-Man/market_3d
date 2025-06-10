@@ -1,0 +1,14 @@
+FROM python:3.13-slim
+
+ENV BLENDER_VERSION=3.6.12
+ENV PATH="/opt/blender:$PATH"
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    wget ca-certificates tar xz-utils \
+    libgl1 libx11-6 libxkbcommon0 libxrender1 libxrandr2 libxfixes3 libxi6 \
+    libxcursor1 libxcomposite1 libasound2 libxdamage1 libxext6 libsm6 libxxf86vm1 \
+    && rm -rf /var/lib/apt/lists/* && \
+    mkdir -p /opt/blender && \
+    wget -q https://download.blender.org/release/Blender${BLENDER_VERSION%.*}/blender-${BLENDER_VERSION}-linux-x64.tar.xz && \
+    tar -xf blender-${BLENDER_VERSION}-linux-x64.tar.xz --strip-components=1 -C /opt/blender && \
+    ln -s /opt/blender/blender /usr/local/bin/blender
