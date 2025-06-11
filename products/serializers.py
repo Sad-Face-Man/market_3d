@@ -33,7 +33,10 @@ class Model3DSerializer(serializers.ModelSerializer):
             'author_username',
             'tags'
         ]
-        read_only_fields = ['download_count', 'created_at', 'updated_at', 'author']
+        read_only_fields = ['download_count',
+                            'file_size', 'file_type',
+                            'created_at', 'updated_at',
+                            'author']
 
     # ---------------- Validators ----------------
     def validate_nft_token(self, value):

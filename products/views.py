@@ -1,6 +1,7 @@
 import os
 from rest_framework import viewsets, permissions
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.filters import SearchFilter, OrderingFilter
 
 from .models import Model3D, ModelTag, ModelImage
@@ -16,46 +17,31 @@ from drf_yasg import openapi
 class Model3DViewSet(viewsets.ModelViewSet):
     queryset = Model3D.objects.all().select_related('author', 'license').prefetch_related('tags')
     serializer_class = Model3DSerializer
-    permission_classes = [
-        permissions.IsAuthenticatedOrReadOnly,
-        IsAuthorOrReadOnly
-    ]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
+    parser_classes = [MultiPartParser, FormParser]
 
-    filter_backends = [
-        DjangoFilterBackend,
-        SearchFilter,
-        OrderingFilter
-    ]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = Model3DFilter
     search_fields = ['title', 'description', 'nft_token']
     ordering_fields = ['created_at', 'price', 'download_count', 'file_size']
 
-    @swagger_auto_schema(  # <-- Только один декоратор для create
-        operation_description="Загрузка новой 3D модели",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            required=['title', 'file', 'file_type', 'file_size'],
-            properties={
-                'title': openapi.Schema(type=openapi.TYPE_STRING, description='Название модели'),
-                'description': openapi.Schema(type=openapi.TYPE_STRING, description='Описание'),
-                'file': openapi.Schema(type=openapi.TYPE_FILE, description='Файл 3D модели (.fbx, .obj и др.)'),
-                'file_type': openapi.Schema(type=openapi.TYPE_STRING, description='Тип файла (FBX/OBJ/BLEND/GLB)'),
-                'file_size': openapi.Schema(type=openapi.TYPE_INTEGER, description='Размер файла в байтах'),
-                'price': openapi.Schema(type=openapi.TYPE_INTEGER, description='Цена (в долларах)'),
-                'nft_token': openapi.Schema(type=openapi.TYPE_STRING, description='NFT-токен'),
-                'tags': openapi.Schema(
-                    type=openapi.TYPE_ARRAY,
-                    items=openapi.Items(type=openapi.TYPE_INTEGER),
-                    description='Список ID тегов'
-                ),
-                'is_published': openapi.Schema(type=openapi.TYPE_BOOLEAN, description='Опубликовано'),
-            }
-        )
+    @swagger_auto_schema(
+        operation_description="Загрузка новой 3D модели (используйте multipart/form-data). "
+                              "Поле 'tags' принимает строку с названиями тегов, разделёнными пробелами.",
+        consumes=['multipart/form-data'],
+        manual_parameters=[
+            openapi.Parameter(
+                name='tags',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                description="Названия тегов, разделённые пробелами (например: 'robot sci-fi free')",
+            ),
+        ]
     )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
-    @swagger_auto_schema(  # <-- отдельный декоратор для list
+    @swagger_auto_schema(
         manual_parameters=[
             openapi.Parameter('title', openapi.IN_QUERY, description="Название (поиск по подстроке)", type=openapi.TYPE_STRING),
             openapi.Parameter('description', openapi.IN_QUERY, description="Описание (поиск по подстроке)", type=openapi.TYPE_STRING),
@@ -75,19 +61,34 @@ class Model3DViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         file = self.request.FILES.get('file')
         file_type = self.guess_file_type(file.name) if file else None
+        file_size = file.size if file else 0
 
-        serializer.save(author=self.request.user, file_type=file_type)
+        # --- Обработка тегов ---
+        tags_string = self.request.data.get('tags', '')
+        tag_titles = tags_string.strip().split()
+        tag_ids = []
+
+        for title in tag_titles:
+            tag, _ = ModelTag.objects.get_or_create(title=title)
+            tag_ids.append(tag.id)
+
+        # Сохраняем саму модель
+        model_instance = serializer.save(
+            author=self.request.user,
+            file_type=file_type,
+            file_size=file_size
+        )
+
+        # Устанавливаем теги
+        model_instance.tags.set(tag_ids)
 
     @staticmethod
     def guess_file_type(filename: str) -> str:
         ext = os.path.splitext(filename)[1].lower().strip(".")
         if ext in FileTypes.EXTENSIONS:
-            # Найдём имя класса (например, 'OBJ'),
-            # соответствующее этому расширению
             for key, value in FileTypes.__dict__.items():
-                if not key.startswith("_") and isinstance(value,
-                                                          str) and value.lower() == ext:
-                    return value  # Вернёт 'OBJ', 'GLB' и т.д.
+                if not key.startswith("_") and isinstance(value, str) and value.lower() == ext:
+                    return value
         return 'UNKNOWN'
 
 

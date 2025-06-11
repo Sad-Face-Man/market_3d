@@ -109,11 +109,11 @@ WSGI_APPLICATION = 'market_3d.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB', 'market_3d'),
-        'USER': os.getenv('POSTGRES_USER', 'market_sql_user'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'Password0000'),
-        'HOST': os.getenv('POSTGRES_HOST', 'db'),  # 'db' — имя сервиса в Docker
-        'PORT': os.getenv('POSTGRES_PORT', '5432'),
+        'NAME': os.getenv('DB_NAME', 'market_3d'),
+        'USER': os.getenv('DB_USER', 'market_sql_user'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'Password0000'),
+        'HOST': os.getenv('DB_HOST', 'db'),  # 'db' — имя сервиса в Docker
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 

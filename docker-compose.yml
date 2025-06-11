@@ -33,10 +33,13 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    env_file:
+      - .env
     volumes:
       - ./staticfiles:/vol/static
       - media_volume:/vol/media
       - ./logs:/app/logs
+      - /srv/ftp/market_3d_storage:/srv/ftp/market_3d_storage
 
   nginx:
     image: nginx:latest
