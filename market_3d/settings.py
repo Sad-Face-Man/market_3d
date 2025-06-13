@@ -179,7 +179,10 @@ preview_storage = FileSystemStorage(location=PREVIEW_ROOT)
 # Папка для оригинальных и конвертированных моделей
 MODEL3D_ROOT = '/srv/ftp/market_3d_storage/models'
 MODEL_CONVERTED_ROOT = '/srv/ftp/market_3d_storage/models_glb'
-model3d_storage = FileSystemStorage(location=MODEL3D_ROOT)
+model3d_storage = FileSystemStorage(
+    location=MODEL3D_ROOT,
+    base_url='/protected_media/'
+)
 converted_storage = FileSystemStorage(location=MODEL_CONVERTED_ROOT)
 
 # Django Rest Framework
